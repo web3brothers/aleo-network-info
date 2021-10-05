@@ -1,0 +1,22 @@
+version: '3'
+services:
+  db:
+    image: postgres:13-alpine3.14
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: aleo
+      POSTGRES_USER: pg
+      POSTGRES_PASSWORD: dsfewtbg234dsE
+  app:
+    image: web3brothers/aleo-network-info:test2
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/aleo
+      SPRING_DATASOURCE_USERNAME: pg
+      SPRING_DATASOURCE_PASSWORD: dsfewtbg234dsE

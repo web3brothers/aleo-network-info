@@ -1,0 +1,76 @@
+$body-bg: #f8f9fa;
+// $body-color: #eee;
+
+@import "../../node_modules/bootstrap/scss/bootstrap.scss";
+
+.card-stats .card-body {
+  padding: 15px 15px 0px;
+}
+
+.card .card-category,
+.card label {
+  font-size: 14px;
+  font-weight: 400;
+  color: #9a9a9a;
+  margin-bottom: 0px;
+}
+
+.custom-label-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: #9a9a9a;
+}
+
+.navbar {
+  border: 0;
+  font-size: 16px;
+  border-radius: 0;
+  min-height: 50px;
+  background-color: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+  .navbar-brand {
+    font-weight: 400;
+    margin: 5px 0px;
+    font-size: 20px;
+    color: #888888;
+
+    &:hover {
+      color: #5e5e5e;
+    }
+  }
+}
+
+.pagination > li > a {
+  background-color: white;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.pagination > li > a:focus,
+.pagination > li > a:hover,
+.pagination > li > span:focus,
+.pagination > li > span:hover {
+  color: #5a5a5a;
+  background-color: #eee;
+  border-color: #ddd;
+}
+
+.pagination > .active > a {
+  color: white;
+  background-color: #0000009a !important;
+  border: solid 1px #0000009a !important;
+}
+
+.pagination > .active > a:hover {
+  background-color: #0000009a !important;
+  border: solid 1px #0000009a;
+}
+
+@media only screen and (min-width: 960px) {
+  .navbar .navbar-nav .nav-item .nav-link {
+    padding: 0 0.5em;
+  }
+  .navbar .navbar-nav .nav-item:not(:last-child) .nav-link {
+    border-right: 2px solid #888888;
+  }
+}

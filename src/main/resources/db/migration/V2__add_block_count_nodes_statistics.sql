@@ -1,0 +1,1 @@
+ALTER TABLE nodes_statistics ADD block_count DOUBLE PRECISION;
