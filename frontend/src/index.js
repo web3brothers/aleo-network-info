@@ -3,6 +3,7 @@ import React from "react"
 import ReactDOM from "react-dom"
 import PeersDashboard from "./layouts/PeersDashboard"
 import NodesList from "./layouts/NodesList"
+import ActualNodeInfo from "./layouts/ActualNodeInfo"
 import Header from "./layouts/Header"
 import { BrowserRouter, Switch, Route } from "react-router-dom"
 
@@ -22,6 +23,9 @@ ReactDOM.render(
         </Route>
         <Route path="/full-nodes" exact>
           <NodesList nodesType="FULL_NODES" />
+        </Route>
+        <Route path="/actual-node-info/:ip" exact>
+          <ActualNodeInfo />
         </Route>
       </Switch>
     </BrowserRouter>

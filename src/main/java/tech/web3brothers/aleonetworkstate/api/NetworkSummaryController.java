@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class NetworkSummary {
+public class NetworkSummaryController {
 
     private final NetworkSummaryService networkSummaryService;
 

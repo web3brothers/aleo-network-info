@@ -1,9 +1,10 @@
 import Page from "./Page"
 import { useEffect, useState } from "react"
+import { withRouter } from "react-router-dom"
 import Axios from "axios"
 import ReactPaginate from "react-paginate"
 import { Table } from "react-bootstrap"
-import humanizeDuration from "humanize-duration"
+import calculateUptime from "../utils/UptimeCalculator"
 
 function NodesList(props) {
   const [offset, setOffset] = useState(0)
@@ -40,22 +41,21 @@ function NodesList(props) {
     )
   }
 
-  function calculateUptime(launched) {
-    if (launched !== null) {
-      let startTime = Date.parse(launched)
-      let endTime = Date.now()
-      return humanizeDuration(endTime - startTime, { largest: 3 })
-    }
-    return ""
-  }
-
   function handlePageClick(e) {
     let selectedPage = e.selected
     setOffset(parseInt(selectedPage, 10) * limit)
   }
 
+  function redirectToActualNodeInfo(ip) {
+    // redirects to actual node info page
+    props.history.push(`/actual-node-info/${ip}`)
+  }
+
   return (
     <Page className="text-center">
+      <p className="card-category custom-label-text">
+        Collected on: <span>fffff</span>
+      </p>
       <Table striped bordered hover size="sm">
         <thead>
           <tr>
@@ -71,7 +71,7 @@ function NodesList(props) {
         <tbody>
           {data.items.map((item) => {
             return (
-              <tr key={item.ip}>
+              <tr key={item.ip} onClick={() => redirectToActualNodeInfo(item.ip)}>
                 <td>{item.ip}</td>
                 <td className="text-center">{item.syncing === true ? getCrossIcon() : getCheckedMarkIcon()}</td>
                 <td>{item.blockCount}</td>
@@ -89,4 +89,4 @@ function NodesList(props) {
   )
 }
 
-export default NodesList
+export default withRouter(NodesList)

@@ -186,7 +186,7 @@ function PeersDashboard() {
         <Row>
           <Col md="1"></Col>
           <Col md="10">
-            <div id="chartHostsByProviders">
+            <div id="chartHostsByProviders" className="mt-3 mb-n4">
               <ReactEcharts
                 style={{ height: "450px", width: "100%" }}
                 option={{
@@ -226,7 +226,7 @@ function PeersDashboard() {
         </Row>
         <Row>
           <Col md="12">
-            <div id="pieByVersions">
+            <div id="pieByVersions" className="mt-3">
               <ReactEcharts
                 style={{ height: "450px", width: "100%" }}
                 option={{

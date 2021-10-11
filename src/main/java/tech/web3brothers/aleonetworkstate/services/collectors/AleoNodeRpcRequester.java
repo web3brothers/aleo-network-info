@@ -1,24 +1,23 @@
 package tech.web3brothers.aleonetworkstate.services.collectors;
 
-import tech.web3brothers.aleonetworkstate.dtos.NodeInfoDto;
-import tech.web3brothers.aleonetworkstate.dtos.PeersDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.arteam.simplejsonrpc.client.JsonRpcClient;
-import com.github.arteam.simplejsonrpc.client.Transport;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.Charsets;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
+import tech.web3brothers.aleonetworkstate.dtos.NodeInfoDto;
+import tech.web3brothers.aleonetworkstate.dtos.NodeStatDto;
+import tech.web3brothers.aleonetworkstate.dtos.PeersDto;
 
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -26,36 +25,37 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class AleoNodeRpcRequestor implements NodeRequestor {
+public class AleoNodeRpcRequester implements NodeRequester, AutoCloseable {
 
     private final JsonRpcClient client;
     private final String url;
+    private final CloseableHttpClient httpClient;
 
-    public AleoNodeRpcRequestor(String ip, ObjectMapper objectMapper) {
+    public AleoNodeRpcRequester(String ip, ObjectMapper objectMapper) {
         this.url = String.format("http://%s:3030", ip);
-        this.client = new JsonRpcClient(new Transport() {
 
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectTimeout(3000)
-                    .setSocketTimeout(3000)
-                    .build();
+        int timeoutSeconds = 5;
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectionRequestTimeout(timeoutSeconds * 1000)
+                .setConnectTimeout(timeoutSeconds * 1000)
+                .setSocketTimeout(timeoutSeconds * 1000)
+                .build();
 
-            CloseableHttpClient httpClient = HttpClientBuilder.create()
-                    .setDefaultRequestConfig(requestConfig)
-                    .setConnectionTimeToLive(20, TimeUnit.SECONDS)
-                    .build();
+        httpClient = HttpClientBuilder.create()
+                .setDefaultRequestConfig(requestConfig)
+                .setConnectionTimeToLive(20, TimeUnit.SECONDS)
+                .setRetryHandler(new DefaultHttpRequestRetryHandler(1, false))
+                .build();
 
-            @NotNull
-            @Override
-            public String pass(@NotNull String request) throws IOException {
-                HttpPost post = new HttpPost(url);
-                post.setEntity(new StringEntity(request, Charsets.UTF_8));
-                post.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8.toString());
-                try (CloseableHttpResponse httpResponse = httpClient.execute(post)) {
-                    return EntityUtils.toString(httpResponse.getEntity(), Charsets.UTF_8);
-                }
+        this.client = new JsonRpcClient(request -> {
+            HttpPost post = new HttpPost(url);
+            post.setEntity(new StringEntity(request, StandardCharsets.UTF_8));
+            post.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+            try (CloseableHttpResponse httpResponse = httpClient.execute(post)) {
+                return EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
             }
         }, objectMapper);
+
     }
 
     @Override
@@ -75,6 +75,8 @@ public class AleoNodeRpcRequestor implements NodeRequestor {
         return makeRequest(NodeInfoDto.class, "getnodeinfo");
     }
 
+    public Optional<NodeStatDto> getNodeStat() { return makeRequest(NodeStatDto.class, "getnodestats");}
+
     @Override
     public Optional<Double> getBlockCount() {
         return makeRequest(Double.class, "getblockcount");
@@ -91,5 +93,10 @@ public class AleoNodeRpcRequestor implements NodeRequestor {
             log.warn("Some error occurred on rpc {}, {}", methodName, e.getMessage());
             return Optional.empty();
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        httpClient.close();
     }
 }

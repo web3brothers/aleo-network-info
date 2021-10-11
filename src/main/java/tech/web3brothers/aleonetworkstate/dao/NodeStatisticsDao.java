@@ -42,7 +42,7 @@ public class NodeStatisticsDao {
         dslContext.insertInto(NODES_STATISTICS,
                 NODES_STATISTICS.IP,
                 NODES_STATISTICS.INFO_COLLECTED_ON,
-                NODES_STATISTICS.BOOT_NODE,
+                NODES_STATISTICS.NODE_TYPE,
                 NODES_STATISTICS.MINER,
                 NODES_STATISTICS.SYNCING,
                 NODES_STATISTICS.LAUNCHED,
@@ -51,7 +51,7 @@ public class NodeStatisticsDao {
                 NODES_STATISTICS.NOT_REACHABLE)
                 .values(event.getIp(),
                         event.getCollectedOn().toInstant().atOffset(ZoneOffset.UTC),
-                        event.getNodeInfo().getBootNode(),
+                        event.getNodeInfo().getNodeType(),
                         event.getNodeInfo().getMiner(),
                         event.getNodeInfo().getSyncing(),
                         event.getNodeInfo().getLaunched() != null ? event.getNodeInfo().getLaunched().toInstant().atOffset(ZoneOffset.UTC) : null,
@@ -78,11 +78,12 @@ public class NodeStatisticsDao {
                         .and(NODES_STATISTICS.MINER.eq(true)))
                         .as("miners"),
                 field(selectCount().from(NODES_STATISTICS).where(NODES_STATISTICS.INFO_COLLECTED_ON.eq(statisticsCollectionDate))
-                        .and(NODES_STATISTICS.MINER.eq(false)
-                                .and(NODES_STATISTICS.BOOT_NODE.eq(false)
-                                        .and(NODES_STATISTICS.NOT_REACHABLE.eq(false))))).as("fullNodes"),
+                        .and(NODES_STATISTICS.MINER.eq(false).and(
+                                NODES_STATISTICS.NODE_TYPE.isNull().or(
+                                        NODES_STATISTICS.NODE_TYPE.notEqual(NodesType.BOOT_NODES.getNodeTypeName())))))
+                        .as("fullNodes"),
                 field(selectCount().from(NODES_STATISTICS).where(NODES_STATISTICS.INFO_COLLECTED_ON.eq(statisticsCollectionDate))
-                        .and(NODES_STATISTICS.BOOT_NODE.eq(true))).as("bootNodes"),
+                        .and(NODES_STATISTICS.NODE_TYPE.eq(NodesType.BOOT_NODES.getNodeTypeName()))).as("bootNodes"),
                 field(selectCount().from(NODES_STATISTICS).where(NODES_STATISTICS.INFO_COLLECTED_ON.eq(statisticsCollectionDate))
                         .and(NODES_STATISTICS.NOT_REACHABLE.eq(true))).as("notReachable"))
                 .fetchSingleInto(AggregationByRolesDto.class);
@@ -214,12 +215,12 @@ public class NodeStatisticsDao {
                 whereConditions = whereConditions.and(NODES_STATISTICS.MINER.isTrue());
                 break;
             case BOOT_NODES:
-                whereConditions = whereConditions.and(NODES_STATISTICS.BOOT_NODE.isTrue());
+                whereConditions = whereConditions.and(NODES_STATISTICS.NODE_TYPE.eq(NodesType.BOOT_NODES.getNodeTypeName()));
                 break;
             case FULL_NODES:
                 whereConditions = whereConditions.and(NODES_STATISTICS.MINER.isFalse()
-                        .and(NODES_STATISTICS.BOOT_NODE.isFalse())
-                        .and(NODES_STATISTICS.NOT_REACHABLE.isFalse()));
+                        .and(NODES_STATISTICS.NODE_TYPE.isNull().or(
+                                NODES_STATISTICS.NODE_TYPE.notEqual(NodesType.BOOT_NODES.getNodeTypeName()))));
         }
         return whereConditions;
     }

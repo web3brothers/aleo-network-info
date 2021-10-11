@@ -17,7 +17,7 @@ import tech.web3brothers.aleonetworkstate.dtos.NodeInfoDto;
 import tech.web3brothers.aleonetworkstate.dtos.NodeStatusDto;
 import tech.web3brothers.aleonetworkstate.dtos.NodesType;
 import tech.web3brothers.aleonetworkstate.dtos.Page;
-import tech.web3brothers.aleonetworkstate.services.collectors.NodeRequestor;
+import tech.web3brothers.aleonetworkstate.services.collectors.NodeRequester;
 import tech.web3brothers.aleonetworkstate.services.collectors.NodeRequestorFactory;
 import tech.web3brothers.aleonetworkstate.services.collectors.RequestWorkerCoordinator;
 
@@ -124,7 +124,7 @@ class DataCollectionIntegrationTest extends BaseIntegrationTest {
         Map<String, NodeInfoDto> nodesInfo = new HashMap<>();
 
         nodesInfo.put(node1Ip, NodeInfoDto.builder()
-                .bootNode(true)
+                .nodeType(NodesType.BOOT_NODES.getNodeTypeName())
                 .launched(Date.from(Instant.parse("2007-12-03T10:15:30.00Z")))
                 .miner(false)
                 .syncing(true)
@@ -132,7 +132,7 @@ class DataCollectionIntegrationTest extends BaseIntegrationTest {
                 .build());
 
         nodesInfo.put(node2Ip, NodeInfoDto.builder()
-                .bootNode(false)
+                .nodeType(NodesType.FULL_NODES.getNodeTypeName())
                 .launched(Date.from(Instant.parse("2008-12-03T10:15:30.00Z")))
                 .miner(false)
                 .syncing(true)
@@ -140,16 +140,16 @@ class DataCollectionIntegrationTest extends BaseIntegrationTest {
                 .build());
 
         nodesInfo.put(node3Ip, NodeInfoDto.builder()
-                .bootNode(false)
+                .nodeType(null)
                 .launched(Date.from(Instant.parse("2009-12-03T10:15:30.00Z")))
                 .miner(true)
                 .syncing(false)
                 .version("1.3")
                 .build());
 
-        NodeRequestor requestor1 = mock(NodeRequestor.class);
-        NodeRequestor requestor2 = mock(NodeRequestor.class);
-        NodeRequestor requestor3 = mock(NodeRequestor.class);
+        NodeRequester requestor1 = mock(NodeRequester.class);
+        NodeRequester requestor2 = mock(NodeRequester.class);
+        NodeRequester requestor3 = mock(NodeRequester.class);
 
         Mockito.when(nodeRequestorFactory.createNodeRequestor(node1Ip))
                 .thenReturn(requestor1);

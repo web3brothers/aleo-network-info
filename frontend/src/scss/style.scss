@@ -1,6 +1,8 @@
 $body-bg: #f8f9fa;
 // $body-color: #eee;
 
+$enable-negative-margins: true;
+
 @import "../../node_modules/bootstrap/scss/bootstrap.scss";
 
 .card-stats .card-body {
