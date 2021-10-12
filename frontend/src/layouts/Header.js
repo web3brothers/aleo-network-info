@@ -6,7 +6,7 @@ function Header() {
     <Navbar className="container" bg="light" expand="lg">
       <Container fluid>
         <div className="d-flex justify-content-center align-items-center ml-2 ml-lg-0">
-          <Navbar.Brand className="mr-2" as={Link} to="/peers-dashboard">
+          <Navbar.Brand className="mr-2" as={Link} to="/">
             {"Aleo network info"}
           </Navbar.Brand>
         </div>

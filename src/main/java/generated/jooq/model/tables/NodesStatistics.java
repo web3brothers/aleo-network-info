@@ -59,11 +59,6 @@ public class NodesStatistics extends TableImpl<NodesStatisticsRecord> {
     public final TableField<NodesStatisticsRecord, OffsetDateTime> INFO_COLLECTED_ON = createField(DSL.name("info_collected_on"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false), this, "");
 
     /**
-     * The column <code>public.nodes_statistics.boot_node</code>.
-     */
-    public final TableField<NodesStatisticsRecord, Boolean> BOOT_NODE = createField(DSL.name("boot_node"), SQLDataType.BOOLEAN, this, "");
-
-    /**
      * The column <code>public.nodes_statistics.miner</code>.
      */
     public final TableField<NodesStatisticsRecord, Boolean> MINER = createField(DSL.name("miner"), SQLDataType.BOOLEAN, this, "");
@@ -92,6 +87,11 @@ public class NodesStatistics extends TableImpl<NodesStatisticsRecord> {
      * The column <code>public.nodes_statistics.block_count</code>.
      */
     public final TableField<NodesStatisticsRecord, Double> BLOCK_COUNT = createField(DSL.name("block_count"), SQLDataType.DOUBLE, this, "");
+
+    /**
+     * The column <code>public.nodes_statistics.node_type</code>.
+     */
+    public final TableField<NodesStatisticsRecord, String> NODE_TYPE = createField(DSL.name("node_type"), SQLDataType.VARCHAR(30), this, "");
 
     private NodesStatistics(Name alias, Table<NodesStatisticsRecord> aliased) {
         this(alias, aliased, null);
@@ -172,7 +172,7 @@ public class NodesStatistics extends TableImpl<NodesStatisticsRecord> {
     // -------------------------------------------------------------------------
 
     @Override
-    public Row9<String, OffsetDateTime, Boolean, Boolean, Boolean, OffsetDateTime, String, Boolean, Double> fieldsRow() {
+    public Row9<String, OffsetDateTime, Boolean, Boolean, OffsetDateTime, String, Boolean, Double, String> fieldsRow() {
         return (Row9) super.fieldsRow();
     }
 }

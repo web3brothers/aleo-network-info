@@ -16,4 +16,5 @@ public class ApiNetworkSummaryDto {
     private AggregationByRolesDto aggregationByRoles;
     private AggregationByProvidersDto aggregationByProviders;
     private AggregationByAppVersionsDto aggregationByVersions;
+    private List<AggregationBySyncDto> aggregationBySync;
 }

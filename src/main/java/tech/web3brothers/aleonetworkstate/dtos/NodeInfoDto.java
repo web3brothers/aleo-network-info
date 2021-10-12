@@ -11,12 +11,12 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class NodeInfoDto {
-    @JsonAlias("is_bootnode")
-    private Boolean bootNode;
     @JsonAlias("is_miner")
     private Boolean miner;
     @JsonAlias("is_syncing")
     private Boolean syncing;
     private Date launched;
     private String version;
+    @JsonAlias("node_type")
+    private String nodeType;
 }

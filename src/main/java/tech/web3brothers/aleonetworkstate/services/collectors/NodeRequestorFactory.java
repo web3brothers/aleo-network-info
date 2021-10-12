@@ -10,7 +10,7 @@ public class NodeRequestorFactory {
 
     private final ObjectMapper objectMapper;
 
-    public NodeRequestor createNodeRequestor(String ip) {
-        return new AleoNodeRpcRequestor(ip, objectMapper);
+    public NodeRequester createNodeRequestor(String ip) {
+        return new AleoNodeRpcRequester(ip, objectMapper);
     }
 }

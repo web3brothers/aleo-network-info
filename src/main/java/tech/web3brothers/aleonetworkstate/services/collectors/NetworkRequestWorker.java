@@ -10,7 +10,6 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -20,18 +19,15 @@ public class NetworkRequestWorker implements Runnable {
     private final BlockingQueue<String> queueToAddPeersTo;
     private final ApplicationEventPublisher publisher;
     private final OffsetDateTime collectedOn;
-    private final AtomicInteger activeThreadsCounter;
     private final NodeRequestorFactory nodeRequestorFactory;
 
     @Override
     public void run() {
-        try {
-            log.debug("Start processing {}", ip);
-            activeThreadsCounter.incrementAndGet();
-            NodeRequestor req = nodeRequestorFactory.createNodeRequestor(ip);
+        log.debug("Start processing {}", ip);
+        NodeInformationCollectedEvent event = NodeInformationCollectedEvent.builder().build();
+        try(NodeRequester req = nodeRequestorFactory.createNodeRequestor(ip)){
             Set<String> peers = req.getPeers();
 
-            NodeInformationCollectedEvent event = NodeInformationCollectedEvent.builder().build();
             event.setCollectedOn(collectedOn);
             event.setIp(ip);
 
@@ -53,8 +49,8 @@ public class NetworkRequestWorker implements Runnable {
             event.setBlockCount(req.getBlockCount().orElse(null));
             publisher.publishEvent(event);
             log.debug("Processed: {}", event);
-        } finally {
-            activeThreadsCounter.decrementAndGet();
+        } catch (Exception e) {
+            log.warn("Exception occurred whe tried to close resource {}", e.getMessage());
         }
     }
 

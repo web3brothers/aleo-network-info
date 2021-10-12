@@ -5,12 +5,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.True;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import tech.web3brothers.aleonetworkstate.dtos.AggregationByAppVersionsDto;
 import tech.web3brothers.aleonetworkstate.dtos.AggregationByCityDto;
 import tech.web3brothers.aleonetworkstate.dtos.AggregationByProvidersDto;
 import tech.web3brothers.aleonetworkstate.dtos.AggregationByRolesDto;
+import tech.web3brothers.aleonetworkstate.dtos.AggregationBySyncDto;
 import tech.web3brothers.aleonetworkstate.dtos.NodeStatusDto;
 import tech.web3brothers.aleonetworkstate.dtos.NodesType;
 import tech.web3brothers.aleonetworkstate.dtos.Page;
@@ -42,7 +44,7 @@ public class NodeStatisticsDao {
         dslContext.insertInto(NODES_STATISTICS,
                 NODES_STATISTICS.IP,
                 NODES_STATISTICS.INFO_COLLECTED_ON,
-                NODES_STATISTICS.BOOT_NODE,
+                NODES_STATISTICS.NODE_TYPE,
                 NODES_STATISTICS.MINER,
                 NODES_STATISTICS.SYNCING,
                 NODES_STATISTICS.LAUNCHED,
@@ -51,7 +53,7 @@ public class NodeStatisticsDao {
                 NODES_STATISTICS.NOT_REACHABLE)
                 .values(event.getIp(),
                         event.getCollectedOn().toInstant().atOffset(ZoneOffset.UTC),
-                        event.getNodeInfo().getBootNode(),
+                        event.getNodeInfo().getNodeType(),
                         event.getNodeInfo().getMiner(),
                         event.getNodeInfo().getSyncing(),
                         event.getNodeInfo().getLaunched() != null ? event.getNodeInfo().getLaunched().toInstant().atOffset(ZoneOffset.UTC) : null,
@@ -78,11 +80,12 @@ public class NodeStatisticsDao {
                         .and(NODES_STATISTICS.MINER.eq(true)))
                         .as("miners"),
                 field(selectCount().from(NODES_STATISTICS).where(NODES_STATISTICS.INFO_COLLECTED_ON.eq(statisticsCollectionDate))
-                        .and(NODES_STATISTICS.MINER.eq(false)
-                                .and(NODES_STATISTICS.BOOT_NODE.eq(false)
-                                        .and(NODES_STATISTICS.NOT_REACHABLE.eq(false))))).as("fullNodes"),
+                        .and(NODES_STATISTICS.MINER.eq(false).and(
+                                NODES_STATISTICS.NODE_TYPE.isNull().or(
+                                        NODES_STATISTICS.NODE_TYPE.notEqual(NodesType.BOOT_NODES.getNodeTypeName())))))
+                        .as("fullNodes"),
                 field(selectCount().from(NODES_STATISTICS).where(NODES_STATISTICS.INFO_COLLECTED_ON.eq(statisticsCollectionDate))
-                        .and(NODES_STATISTICS.BOOT_NODE.eq(true))).as("bootNodes"),
+                        .and(NODES_STATISTICS.NODE_TYPE.eq(NodesType.BOOT_NODES.getNodeTypeName()))).as("bootNodes"),
                 field(selectCount().from(NODES_STATISTICS).where(NODES_STATISTICS.INFO_COLLECTED_ON.eq(statisticsCollectionDate))
                         .and(NODES_STATISTICS.NOT_REACHABLE.eq(true))).as("notReachable"))
                 .fetchSingleInto(AggregationByRolesDto.class);
@@ -99,6 +102,7 @@ public class NodeStatisticsDao {
                 .orderBy(DSL.count(IP_INFO.IP).desc())
                 .fetchInto(AggregationByCityDto.class);
     }
+
 
     public AggregationByProvidersDto getNodesCountAggregatedByProviders(OffsetDateTime statisticsCollectionDate, NodesType nodesType) {
         final Integer numOfTopProviders = 8;
@@ -157,6 +161,17 @@ public class NodeStatisticsDao {
                 .build();
     }
 
+    public List<AggregationBySyncDto> getNodesCountAggregatedBySync(OffsetDateTime statisticsCollectionDate, NodesType nodesType) {
+        return dslContext.select(
+                DSL.when(NODES_STATISTICS.SYNCING.eq(true), "No").otherwise("Yes").as("synced"),
+                DSL.count(NODES_STATISTICS.IP).as("nodes"))
+                .from(NODES_STATISTICS)
+                .where(prepareNodesTypeAndCollectionDateConditions(statisticsCollectionDate, nodesType)
+                        .and(NODES_STATISTICS.SYNCING.isNotNull()))
+                .groupBy(NODES_STATISTICS.SYNCING)
+                .fetchInto(AggregationBySyncDto.class);
+    }
+
     public List<String> getNodesWithoutIpInformation(OffsetDateTime lastCollectingDate) {
         if (lastCollectingDate == null) {
             return List.of();
@@ -181,7 +196,7 @@ public class NodeStatisticsDao {
                 .and(prepareNodesTypeAndCollectionDateConditions(lastCollectingDate, nodesType));
 
         if (StringUtils.isNotBlank(searchTerm)) {
-            conditions.and(NODES_STATISTICS.IP.like(searchTerm));
+            conditions = conditions.and(NODES_STATISTICS.IP.like("%"+searchTerm+"%"));
         }
 
         List<NodeStatusDto> items = dslContext.select(NODES_STATISTICS.LAUNCHED,
@@ -202,7 +217,7 @@ public class NodeStatisticsDao {
 
         int total = dslContext.fetchCount(select().from(NODES_STATISTICS).where(conditions));
 
-        return new Page<>(items, offset, total);
+        return new Page<>(items, offset, total, lastCollectingDate);
     }
 
     private Condition prepareNodesTypeAndCollectionDateConditions(OffsetDateTime statisticsCollectionDate, NodesType nodesType) {
@@ -214,12 +229,12 @@ public class NodeStatisticsDao {
                 whereConditions = whereConditions.and(NODES_STATISTICS.MINER.isTrue());
                 break;
             case BOOT_NODES:
-                whereConditions = whereConditions.and(NODES_STATISTICS.BOOT_NODE.isTrue());
+                whereConditions = whereConditions.and(NODES_STATISTICS.NODE_TYPE.eq(NodesType.BOOT_NODES.getNodeTypeName()));
                 break;
             case FULL_NODES:
                 whereConditions = whereConditions.and(NODES_STATISTICS.MINER.isFalse()
-                        .and(NODES_STATISTICS.BOOT_NODE.isFalse())
-                        .and(NODES_STATISTICS.NOT_REACHABLE.isFalse()));
+                        .and(NODES_STATISTICS.NODE_TYPE.isNull().or(
+                                NODES_STATISTICS.NODE_TYPE.notEqual(NodesType.BOOT_NODES.getNodeTypeName()))));
         }
         return whereConditions;
     }

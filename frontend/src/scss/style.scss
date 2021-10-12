@@ -1,10 +1,18 @@
 $body-bg: #f8f9fa;
 // $body-color: #eee;
 
+$enable-negative-margins: true;
+
 @import "../../node_modules/bootstrap/scss/bootstrap.scss";
 
 .card-stats .card-body {
   padding: 15px 15px 0px;
+}
+
+input.search {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0;
+  background-color: rgba(255, 255, 255, 0.96);
 }
 
 .card .card-category,
@@ -30,6 +38,26 @@ $body-bg: #f8f9fa;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
   .navbar-brand {
+    font-weight: 400;
+    margin: 5px 0px;
+    font-size: 20px;
+    color: #888888;
+
+    &:hover {
+      color: #5e5e5e;
+    }
+  }
+}
+
+.footer {
+  border: 0;
+  font-size: 16px;
+  border-radius: 0;
+  min-height: 50px;
+  background-color: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+  .footer-brand {
     font-weight: 400;
     margin: 5px 0px;
     font-size: 20px;

@@ -18,48 +18,48 @@ public class NodesStatistics implements Serializable {
 
     private String         ip;
     private OffsetDateTime infoCollectedOn;
-    private Boolean        bootNode;
     private Boolean        miner;
     private Boolean        syncing;
     private OffsetDateTime launched;
     private String         version;
     private Boolean        notReachable;
     private Double         blockCount;
+    private String         nodeType;
 
     public NodesStatistics() {}
 
     public NodesStatistics(NodesStatistics value) {
         this.ip = value.ip;
         this.infoCollectedOn = value.infoCollectedOn;
-        this.bootNode = value.bootNode;
         this.miner = value.miner;
         this.syncing = value.syncing;
         this.launched = value.launched;
         this.version = value.version;
         this.notReachable = value.notReachable;
         this.blockCount = value.blockCount;
+        this.nodeType = value.nodeType;
     }
 
     public NodesStatistics(
         String         ip,
         OffsetDateTime infoCollectedOn,
-        Boolean        bootNode,
         Boolean        miner,
         Boolean        syncing,
         OffsetDateTime launched,
         String         version,
         Boolean        notReachable,
-        Double         blockCount
+        Double         blockCount,
+        String         nodeType
     ) {
         this.ip = ip;
         this.infoCollectedOn = infoCollectedOn;
-        this.bootNode = bootNode;
         this.miner = miner;
         this.syncing = syncing;
         this.launched = launched;
         this.version = version;
         this.notReachable = notReachable;
         this.blockCount = blockCount;
+        this.nodeType = nodeType;
     }
 
     /**
@@ -89,21 +89,6 @@ public class NodesStatistics implements Serializable {
      */
     public NodesStatistics setInfoCollectedOn(OffsetDateTime infoCollectedOn) {
         this.infoCollectedOn = infoCollectedOn;
-        return this;
-    }
-
-    /**
-     * Getter for <code>public.nodes_statistics.boot_node</code>.
-     */
-    public Boolean getBootNode() {
-        return this.bootNode;
-    }
-
-    /**
-     * Setter for <code>public.nodes_statistics.boot_node</code>.
-     */
-    public NodesStatistics setBootNode(Boolean bootNode) {
-        this.bootNode = bootNode;
         return this;
     }
 
@@ -197,6 +182,21 @@ public class NodesStatistics implements Serializable {
         return this;
     }
 
+    /**
+     * Getter for <code>public.nodes_statistics.node_type</code>.
+     */
+    public String getNodeType() {
+        return this.nodeType;
+    }
+
+    /**
+     * Setter for <code>public.nodes_statistics.node_type</code>.
+     */
+    public NodesStatistics setNodeType(String nodeType) {
+        this.nodeType = nodeType;
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -217,12 +217,6 @@ public class NodesStatistics implements Serializable {
                 return false;
         }
         else if (!infoCollectedOn.equals(other.infoCollectedOn))
-            return false;
-        if (bootNode == null) {
-            if (other.bootNode != null)
-                return false;
-        }
-        else if (!bootNode.equals(other.bootNode))
             return false;
         if (miner == null) {
             if (other.miner != null)
@@ -260,6 +254,12 @@ public class NodesStatistics implements Serializable {
         }
         else if (!blockCount.equals(other.blockCount))
             return false;
+        if (nodeType == null) {
+            if (other.nodeType != null)
+                return false;
+        }
+        else if (!nodeType.equals(other.nodeType))
+            return false;
         return true;
     }
 
@@ -269,13 +269,13 @@ public class NodesStatistics implements Serializable {
         int result = 1;
         result = prime * result + ((this.ip == null) ? 0 : this.ip.hashCode());
         result = prime * result + ((this.infoCollectedOn == null) ? 0 : this.infoCollectedOn.hashCode());
-        result = prime * result + ((this.bootNode == null) ? 0 : this.bootNode.hashCode());
         result = prime * result + ((this.miner == null) ? 0 : this.miner.hashCode());
         result = prime * result + ((this.syncing == null) ? 0 : this.syncing.hashCode());
         result = prime * result + ((this.launched == null) ? 0 : this.launched.hashCode());
         result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
         result = prime * result + ((this.notReachable == null) ? 0 : this.notReachable.hashCode());
         result = prime * result + ((this.blockCount == null) ? 0 : this.blockCount.hashCode());
+        result = prime * result + ((this.nodeType == null) ? 0 : this.nodeType.hashCode());
         return result;
     }
 
@@ -285,13 +285,13 @@ public class NodesStatistics implements Serializable {
 
         sb.append(ip);
         sb.append(", ").append(infoCollectedOn);
-        sb.append(", ").append(bootNode);
         sb.append(", ").append(miner);
         sb.append(", ").append(syncing);
         sb.append(", ").append(launched);
         sb.append(", ").append(version);
         sb.append(", ").append(notReachable);
         sb.append(", ").append(blockCount);
+        sb.append(", ").append(nodeType);
 
         sb.append(")");
         return sb.toString();
