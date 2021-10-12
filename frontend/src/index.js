@@ -6,6 +6,7 @@ import NodesList from "./layouts/NodesList"
 import ActualNodeInfo from "./layouts/ActualNodeInfo"
 import Header from "./layouts/Header"
 import { BrowserRouter, Switch, Route } from "react-router-dom"
+import Footer from "./layouts/Footer"
 
 ReactDOM.render(
   <React.StrictMode>
@@ -28,6 +29,7 @@ ReactDOM.render(
           <ActualNodeInfo />
         </Route>
       </Switch>
+      <Footer />
     </BrowserRouter>
   </React.StrictMode>,
   document.getElementById("root")

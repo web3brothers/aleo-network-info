@@ -29,6 +29,7 @@ function PeersDashboard() {
     bootNodesStatus: {
       bootNodesStatus: [],
     },
+    aggregationBySync: [],
   }
 
   const [summary, setSummary] = useState(initialState)
@@ -55,6 +56,13 @@ function PeersDashboard() {
   function prepareVersionsDataForPieChart(aggregationByVersions) {
     return aggregationByVersions.versions.reduce((acc, v) => {
       acc.push({ value: v.nodes, name: v.version })
+      return acc
+    }, [])
+  }
+
+  function prepareSyncDataForPieChart(aggregationBySync) {
+    return aggregationBySync.reduce((acc, v) => {
+      acc.push({ value: v.nodes, name: v.synced })
       return acc
     }, [])
   }
@@ -244,6 +252,40 @@ function PeersDashboard() {
                       type: "pie",
                       radius: "60%",
                       data: prepareVersionsDataForPieChart(summary.aggregationByVersions),
+                      emphasis: {
+                        itemStyle: {
+                          shadowBlur: 10,
+                          shadowOffsetX: 0,
+                          shadowColor: "rgba(0, 0, 0, 0.5)",
+                        },
+                      },
+                    },
+                  ],
+                }}
+              />
+            </div>
+          </Col>
+        </Row>
+        <Row>
+          <Col md="12">
+            <div id="pieBySynced" className="mt-3">
+              <ReactEcharts
+                style={{ height: "450px", width: "100%" }}
+                option={{
+                  title: {
+                    text: "Synced/not synced peers",
+                    subtext: "Based on syncing flag",
+                    left: "center",
+                  },
+                  tooltip: {
+                    trigger: "item",
+                  },
+                  series: [
+                    {
+                      name: "Synced/Not synced",
+                      type: "pie",
+                      radius: "60%",
+                      data: prepareSyncDataForPieChart(summary.aggregationBySync),
                       emphasis: {
                         itemStyle: {
                           shadowBlur: 10,

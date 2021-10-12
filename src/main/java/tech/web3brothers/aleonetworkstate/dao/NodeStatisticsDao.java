@@ -5,12 +5,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.True;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import tech.web3brothers.aleonetworkstate.dtos.AggregationByAppVersionsDto;
 import tech.web3brothers.aleonetworkstate.dtos.AggregationByCityDto;
 import tech.web3brothers.aleonetworkstate.dtos.AggregationByProvidersDto;
 import tech.web3brothers.aleonetworkstate.dtos.AggregationByRolesDto;
+import tech.web3brothers.aleonetworkstate.dtos.AggregationBySyncDto;
 import tech.web3brothers.aleonetworkstate.dtos.NodeStatusDto;
 import tech.web3brothers.aleonetworkstate.dtos.NodesType;
 import tech.web3brothers.aleonetworkstate.dtos.Page;
@@ -101,6 +103,7 @@ public class NodeStatisticsDao {
                 .fetchInto(AggregationByCityDto.class);
     }
 
+
     public AggregationByProvidersDto getNodesCountAggregatedByProviders(OffsetDateTime statisticsCollectionDate, NodesType nodesType) {
         final Integer numOfTopProviders = 8;
 
@@ -158,6 +161,17 @@ public class NodeStatisticsDao {
                 .build();
     }
 
+    public List<AggregationBySyncDto> getNodesCountAggregatedBySync(OffsetDateTime statisticsCollectionDate, NodesType nodesType) {
+        return dslContext.select(
+                DSL.when(NODES_STATISTICS.SYNCING.eq(true), "No").otherwise("Yes").as("synced"),
+                DSL.count(NODES_STATISTICS.IP).as("nodes"))
+                .from(NODES_STATISTICS)
+                .where(prepareNodesTypeAndCollectionDateConditions(statisticsCollectionDate, nodesType)
+                        .and(NODES_STATISTICS.SYNCING.isNotNull()))
+                .groupBy(NODES_STATISTICS.SYNCING)
+                .fetchInto(AggregationBySyncDto.class);
+    }
+
     public List<String> getNodesWithoutIpInformation(OffsetDateTime lastCollectingDate) {
         if (lastCollectingDate == null) {
             return List.of();
@@ -182,7 +196,7 @@ public class NodeStatisticsDao {
                 .and(prepareNodesTypeAndCollectionDateConditions(lastCollectingDate, nodesType));
 
         if (StringUtils.isNotBlank(searchTerm)) {
-            conditions.and(NODES_STATISTICS.IP.like(searchTerm));
+            conditions = conditions.and(NODES_STATISTICS.IP.like("%"+searchTerm+"%"));
         }
 
         List<NodeStatusDto> items = dslContext.select(NODES_STATISTICS.LAUNCHED,
@@ -203,7 +217,7 @@ public class NodeStatisticsDao {
 
         int total = dslContext.fetchCount(select().from(NODES_STATISTICS).where(conditions));
 
-        return new Page<>(items, offset, total);
+        return new Page<>(items, offset, total, lastCollectingDate);
     }
 
     private Condition prepareNodesTypeAndCollectionDateConditions(OffsetDateTime statisticsCollectionDate, NodesType nodesType) {

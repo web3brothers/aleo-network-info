@@ -3,19 +3,20 @@ import { useEffect, useState } from "react"
 import { withRouter } from "react-router-dom"
 import Axios from "axios"
 import ReactPaginate from "react-paginate"
-import { Table } from "react-bootstrap"
+import { Table, Container, Row, Col } from "react-bootstrap"
 import calculateUptime from "../utils/UptimeCalculator"
 
 function NodesList(props) {
   const [offset, setOffset] = useState(0)
-  const [data, setData] = useState({ items: [], total: 0, page: 0 })
+  const [data, setData] = useState({ items: [], total: 0, page: 0, lastCollectedOn: "" })
   const [limit] = useState(25)
   const [pageCount, setPageCount] = useState(0)
+  const [search, setSearch] = useState("")
 
   useEffect(() => {
     async function fetchData() {
       try {
-        let response = await Axios.get(`/api/v1/nodes?nodes_type=${props.nodesType}&offset=${offset}&limit=${limit}`)
+        let response = await Axios.get(`/api/v1/nodes?searchTerm=${search}&nodes_type=${props.nodesType}&offset=${offset}&limit=${limit}`)
         setData(response.data)
         setPageCount(Math.ceil(response.data.total / limit))
       } catch (e) {
@@ -23,7 +24,7 @@ function NodesList(props) {
       }
     }
     fetchData()
-  }, [offset, pageCount, props.nodesType])
+  }, [offset, pageCount, props.nodesType, search])
 
   function getCheckedMarkIcon() {
     return (
@@ -51,40 +52,55 @@ function NodesList(props) {
     props.history.push(`/actual-node-info/${ip}`)
   }
 
+  function handleInputUpdate(event) {
+    setSearch(event.target.value)
+  }
+
   return (
     <Page className="text-center">
-      <p className="card-category custom-label-text">
-        Collected on: <span>fffff</span>
-      </p>
-      <Table striped bordered hover size="sm">
-        <thead>
-          <tr>
-            <th>Node's IP</th>
-            <th>Synced</th>
-            <th>Block count</th>
-            <th>Uptime</th>
-            <th>Version</th>
-            <th>Country</th>
-            <th>Hosting</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.items.map((item) => {
-            return (
-              <tr key={item.ip} onClick={() => redirectToActualNodeInfo(item.ip)}>
-                <td>{item.ip}</td>
-                <td className="text-center">{item.syncing === true ? getCrossIcon() : getCheckedMarkIcon()}</td>
-                <td>{item.blockCount}</td>
-                <td>{calculateUptime(item.launched)}</td>
-                <td>{item.version}</td>
-                <td>{item.country}</td>
-                <td>{item.org}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </Table>
-      <ReactPaginate previousLabel={"prev"} nextLabel={"next"} breakLabel={"..."} pageLinkClassName={"page-link"} previousLinkClassName={"page-link"} previousClassName={"page-item"} breakClassName={"page-item"} breakLinkClassName={"page-link"} pageClassName={"page-item"} containerClassName={"pagination"} nextClassName={"page-item"} nextLinkClassName={"page-link"} activeClassName={"active"} pageCount={pageCount} marginPagesDisplayed={2} pageRangeDisplayed={3} onPageChange={handlePageClick} />
+      <Container fluid>
+        <Row>
+          <Col lg="6" sm="6" className="card-category custom-label-text">
+            Collected on: <span>{data.lastCollectedOn}</span>
+          </Col>
+          <Col lg="6" sm="6">
+            <input className="search" type="text" value={search} onChange={handleInputUpdate} onrequired />
+          </Col>
+        </Row>
+        <Row>
+          <Col lg="12" sm="6">
+            <Table striped bordered hover size="sm" className="mt-2">
+              <thead>
+                <tr>
+                  <th>Node's IP</th>
+                  <th>Synced</th>
+                  <th>Block count</th>
+                  <th>Uptime</th>
+                  <th>Version</th>
+                  <th>Country</th>
+                  <th>Hosting</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.items.map((item) => {
+                  return (
+                    <tr key={item.ip} onClick={() => redirectToActualNodeInfo(item.ip)}>
+                      <td>{item.ip}</td>
+                      <td className="text-center">{item.syncing === true ? getCrossIcon() : getCheckedMarkIcon()}</td>
+                      <td>{item.blockCount}</td>
+                      <td>{calculateUptime(item.launched)}</td>
+                      <td>{item.version}</td>
+                      <td>{item.country}</td>
+                      <td>{item.org}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </Table>
+            <ReactPaginate previousLabel={"prev"} nextLabel={"next"} breakLabel={"..."} pageLinkClassName={"page-link"} previousLinkClassName={"page-link"} previousClassName={"page-item"} breakClassName={"page-item"} breakLinkClassName={"page-link"} pageClassName={"page-item"} containerClassName={"pagination"} nextClassName={"page-item"} nextLinkClassName={"page-link"} activeClassName={"active"} pageCount={pageCount} marginPagesDisplayed={2} pageRangeDisplayed={3} onPageChange={handlePageClick} />
+          </Col>
+        </Row>
+      </Container>
     </Page>
   )
 }

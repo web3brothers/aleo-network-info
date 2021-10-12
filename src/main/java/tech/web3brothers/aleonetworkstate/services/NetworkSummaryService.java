@@ -23,12 +23,14 @@ public class NetworkSummaryService {
                 .aggregationByRoles(nodeStatisticsDao.getNodesCountByDifferentRoles(lastCollectingDate))
                 .aggregationByProviders(nodeStatisticsDao.getNodesCountAggregatedByProviders(lastCollectingDate, nodesType))
                 .aggregationByVersions(nodeStatisticsDao.getNodesCountAggregatedByVersions(lastCollectingDate, nodesType))
+                .aggregationBySync(nodeStatisticsDao.getNodesCountAggregatedBySync(lastCollectingDate, nodesType))
                 .lastCollectedOn(lastCollectingDate)
                 .build();
     }
 
     public Page<NodeStatusDto> getListOfNodesForLatestCollectionData(NodesType nodesType, String searchTerm, Integer offset, Integer limit) {
         OffsetDateTime lastCollectingDate = nodeStatisticsDao.getLastCollectingDate();
-        return nodeStatisticsDao.getNodesList(nodesType, searchTerm, lastCollectingDate, offset, limit);
+        Page<NodeStatusDto> nodesList = nodeStatisticsDao.getNodesList(nodesType, searchTerm, lastCollectingDate, offset, limit);
+        return nodesList;
     }
 }
