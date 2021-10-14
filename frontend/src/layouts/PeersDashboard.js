@@ -199,8 +199,8 @@ function PeersDashboard() {
                 style={{ height: "450px", width: "100%" }}
                 option={{
                   title: {
-                    text: "Decentralization",
-                    subtext: "Hosts by providers",
+                    text: "Aleo network decentralization",
+                    subtext: "Hosts by providers distribution",
                     left: "center",
                   },
                   tooltip: {
@@ -234,12 +234,12 @@ function PeersDashboard() {
         </Row>
         <Row>
           <Col md="12">
-            <div id="pieByVersions" className="mt-3">
+            <div id="pieByVersions" className="mt-4 mb-n4">
               <ReactEcharts
                 style={{ height: "450px", width: "100%" }}
                 option={{
                   title: {
-                    text: "Versions",
+                    text: "Aleo peers versions distribution",
                     subtext: "Hosts by SnarkOS versions",
                     left: "center",
                   },
@@ -268,12 +268,12 @@ function PeersDashboard() {
         </Row>
         <Row>
           <Col md="12">
-            <div id="pieBySynced" className="mt-3">
+            <div id="pieBySynced">
               <ReactEcharts
                 style={{ height: "450px", width: "100%" }}
                 option={{
                   title: {
-                    text: "Synced/not synced peers",
+                    text: "Aleo network synced to not synced peers ratio",
                     subtext: "Based on syncing flag",
                     left: "center",
                   },
