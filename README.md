@@ -14,7 +14,7 @@ list of peers, then request each peer to get info and get another peers from tho
 ## To run application locally:
 
 ```
-git clone https://github.com/transport-exchange-group/cx-financial-manager.git
+https://github.com/web3brothers/aleo-network-info.git
 ```
 Go to /docker folder and run:
 `
