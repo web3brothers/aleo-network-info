@@ -5,7 +5,7 @@ Gathers and displays [aleo network](https://www.aleo.org/) blockchain peers info
 ## How it works:
 
 There are several boot nodes, which are used to get information for other nodes upon boot in aleo network. The application asks this bootnodes to get
-list of peers, then request each peer to get info and get another peers from those peers. It uses bread first search algorithm to go over all peers.
+list of peers, then request each peer to get info and get another peers from those peers. It uses breadth first search algorithm to go over all peers.
 
 ## Access live instance:
 
